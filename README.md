@@ -40,7 +40,9 @@ repository**:
    *Grant* button, click it). Then select **your** assignment repository and the
    notebook you're working on.
 3. **Work through the notebook** top to bottom, filling in the ✏️ exercises until
-   the checkers print ✅.
+   the checkers print ✅. (The first time you run, Colab shows a *"Warning: this
+   notebook was not authored by Google"* dialog — click **Run anyway**; it appears
+   for any notebook opened from GitHub.)
 4. **Submit by saving back to GitHub**: **File ▸ Save a copy in GitHub**, make sure
    the repository shown is **your assignment repo** (not the course copy), keep the
    file path under `notebooks/`, and leave **“omit code cell output” unchecked** —
@@ -53,8 +55,9 @@ Save back to GitHub whenever you make progress; every save is a submission.
 
 ### If you're learning on your own
 
-Just click a badge. To keep your progress, use **File ▸ Save a copy in Drive**
-(or fork this repository and save copies back to your fork).
+Just click a badge, and click **Run anyway** on Colab's "not authored by Google"
+warning. To keep your progress, use **File ▸ Save a copy in Drive** (or fork this
+repository and save copies back to your fork).
 
 ## What you need
 

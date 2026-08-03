@@ -32,6 +32,8 @@ The exact steps (with screenshots-level detail) are in this repo's
 2. In Colab: *File ▸ Open notebook ▸ GitHub* → tick **Include private repos**
    (a one-time GitHub authorization; if the popup shows your organization with a
    **Grant** button, they must click it — this is the #1 support question).
+   On first run, Colab warns *"this notebook was not authored by Google"* —
+   **Run anyway** is the expected answer (#2 support question).
 3. Work through the notebook; ✏️ exercises give instant ✅/💡 feedback.
 4. *File ▸ Save a copy in GitHub* → their repo, path under `notebooks/`, **“omit
    code cell output” unchecked** → every save is a submission.
