@@ -1,0 +1,8 @@
+site_name,city,latitude,longitude,provider,site_type,location_id,data_file
+Oshodi Bus Terminal,Lagos,6.556652608079174,3.352284660968298,AirGradient,transport hub,5038498,lagos_sites_recent.csv
+University of Lagos / Makoko,Lagos,6.517912,3.385983,AirGradient,university,3400895,lagos_sites_recent.csv
+Dolphin Estate (Ikoyi),Lagos,6.45829,3.415643,AirGradient,residential,4903422,lagos_sites_recent.csv
+M.K.O. Abiola Gardens,Lagos,6.621462,3.362492,AirGradient,urban park,4605121,lagos_sites_recent.csv
+Arepo (Ogun State),Lagos,6.696900148176493,3.425331320586317,AirGradient,peri-urban,4986946,lagos_sites_recent.csv
+Abuja (US Embassy),Abuja,9.041648,7.477374,AirNow (US Dept. of State),reference,220715,abuja_pm25_2024.csv
+Lagos (US Consulate),Lagos,6.440483,3.406815,AirNow (US Dept. of State),reference,404479,lagos_us_consulate_2023_2024.csv

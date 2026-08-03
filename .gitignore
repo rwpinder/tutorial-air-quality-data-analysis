@@ -1,0 +1,6 @@
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+scripts/.s3_cache/
+.venv/
+notebooks/*.png
