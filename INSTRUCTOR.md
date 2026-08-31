@@ -1,55 +1,47 @@
 # Instructor Guide
 
-How to run this course with **GitHub Classroom + Google Colab**: each student gets a
-private copy of these notebooks, works on them in Colab (nothing to install), and
-submits by saving back to their repository — where you review their filled-in
-exercises and rendered charts. (This video shows the same student workflow in
-another course: ["Instruction to use Github classroom and Google Colab"](https://www.youtube.com/watch?v=UziJMx4yjcc).)
+How to run this course with a group. There is **nothing to set up**: the notebooks
+are public, students open them in Google Colab straight from this repository, and
+each keeps their own copy in Google Drive. No accounts to provision, no starter
+repositories, no submission step.
 
-## One-time setup (about 20 minutes)
+## Running the course
 
-1. **Create a GitHub organization** for your class (free): github.com → “+” →
-   *New organization* → Free plan. Example name: `aq-python-2026`.
-2. **Create a classroom**: go to [classroom.github.com](https://classroom.github.com),
-   sign in, *New classroom*, and connect it to that organization.
-3. **Create the assignment**: in the classroom, *New assignment* →
-   * **Individual** assignment; repository visibility **Private** (the default —
-     each student sees only their own work).
-   * Under *Starter code*, choose **`rwpinder/tutorial-air-quality-data-analysis`**
-     (this repository — it's public and marked as a template, so any classroom can
-     use it directly; fork it first if you want to customise).
-   * **Skip the autograding section** — grading feedback is built into the
-     notebooks as self-check cells, and you review the pushed notebooks by eye.
-4. **Copy the invitation link** and send it to your students. Optionally add a
-   roster (student identifiers) so Classroom maps GitHub accounts to names.
+1. **Send students the link** to this repository —
+   `https://github.com/rwpinder/tutorial-air-quality-data-analysis` — and point them
+   at the badge table in the [README](README.md#the-notebooks). Each badge opens
+   that notebook in Colab.
+2. **Tell them to save a copy to Drive** (*File ▸ Save a copy in Drive*) the first
+   time they open each notebook, and to work in that copy — edits to the
+   badge-opened copy are not saved anywhere. This is the one instruction worth
+   repeating out loud.
+3. **Suggested pace**: one notebook per session — 1–2 → 3 → 4 → 5 across four
+   sessions, with notebook 6 (the live OpenAQ API) as homework for the keen.
+   Notebook 6 needs a free [OpenAQ API key](https://explore.openaq.org/register);
+   if you plan to cover it, have students register beforehand.
 
-## What students do
+### The two support questions to expect
 
-The exact steps (with screenshots-level detail) are in this repo's
-[README](README.md#if-youre-in-a-class-github-classroom); in short:
+* *"Colab says this notebook wasn't authored by Google."* — **Run anyway**. It
+  appears for every notebook opened from GitHub.
+* *"I closed the tab and lost my work."* — they were editing the badge-opened copy.
+  *Save a copy in Drive* first; the Drive copy lives under `Colab Notebooks/`.
 
-1. Open your invitation link → accept → Classroom creates their private repo.
-2. In Colab: *File ▸ Open notebook ▸ GitHub* → tick **Include private repos**
-   (a one-time GitHub authorization; if the popup shows your organization with a
-   **Grant** button, they must click it — this is the #1 support question).
-   On first run, Colab warns *"this notebook was not authored by Google"* —
-   **Run anyway** is the expected answer (#2 support question).
-3. Work through the notebook; ✏️ exercises give instant ✅/💡 feedback.
-4. *File ▸ Save a copy in GitHub* → their repo, path under `notebooks/`, **“omit
-   code cell output” unchecked** → every save is a submission.
+## Checking progress in class
 
-## Reviewing submissions
+There is no submission or grading step — the feedback is built into the notebooks,
+so students self-check as they go. To see where a group is:
 
-* The classroom dashboard lists every student repo; open a repo → `notebooks/` →
-  GitHub renders the notebook **with the student's outputs and charts inline**
-  (this course uses matplotlib precisely because GitHub displays its output;
-  the optional Plotly cells at the end of notebook 5 will show as blank on GitHub —
-  that's expected).
+* Ask for a show of hands on **✅ counts** — each ✏️ *Your turn* exercise is followed
+  by a checker cell that prints ✅ or a 💡 hint, so "how many ✅ in notebook 3?" is a
+  precise, low-friction progress question.
+* Walk the room (or, remotely, ask students to share their screen) during exercises;
+  the 💡 hints tell you exactly which concept a student is stuck on.
+* If you do want to look at finished work, ask students to share their Drive copy
+  (*Share ▸ Anyone with the link ▸ Viewer*) or to paste a chart into a shared doc.
 * What to look for, per notebook: the ✏️ exercise cells filled in, their checker
   cells printing **✅**, and — from notebook 4 on — charts whose **titles state a
   finding** (that habit is the course's real deliverable).
-* Suggested pace: one notebook per session; 1–2 → 3 → 4 → 5 across four sessions,
-  notebook 6 as homework for the keen.
 
 ## Course design notes
 
@@ -59,6 +51,10 @@ The exact steps (with screenshots-level detail) are in this repo's
   ✅ or a 💡 hint and never raises — notebooks 1–5 run top-to-bottom even with all
   exercises unfilled, so "Run all" never strands a student on a traceback.
   Notebook 6 requires a (free) OpenAQ API key and warns students accordingly.
+* **Charts render in the browser**: this course uses matplotlib throughout, so
+  plots appear inline in Colab (and in the notebook file itself if a student saves
+  it with outputs). The optional Plotly cells at the end of notebook 5 are
+  interactive in Colab but show as blank if the notebook is viewed on GitHub.
 * **The data is real** and includes real problems on purpose: a low-cost sensor
   with 45 missing days, a reference monitor with a 203-day outage, and a raw
   multi-parameter export that must be filtered and parsed. See
@@ -66,6 +62,14 @@ The exact steps (with screenshots-level detail) are in this repo's
 * **Solutions**: instructor solution notebooks (every exercise filled, all outputs
   rendered) exist but are deliberately not in this public repository — contact the
   course author.
+
+## Making your own version
+
+The notebooks are MIT licensed and this repository is a GitHub template, so you can
+click **Use this template** (or fork) to make a copy you customise — swapping in
+your own city's data, cutting notebooks, changing the pacing. If you do, note that
+the Colab badge URLs in the README encode the repository path, so update them to
+point at your copy before handing the link out.
 
 ## Maintaining the course
 
