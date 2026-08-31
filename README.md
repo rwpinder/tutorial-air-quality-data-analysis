@@ -24,44 +24,26 @@ Work through them **in order** — each builds on the last. Every notebook conta
 
 ## How to take the course
 
-### If you're in a class (GitHub Classroom)
+1. **Open a notebook** — click its Colab badge in the table above. The notebook
+   opens in [Google Colab](https://colab.research.google.com); nothing to install.
+2. **Click "Run anyway"** on Colab's *"Warning: this notebook was not authored by
+   Google"* dialog. It appears for any notebook opened from GitHub.
+3. **Work through it top to bottom**, running each cell with **Shift+Enter** and
+   filling in the ✏️ *Your turn* exercises until the checker cells print ✅.
+   (Nothing can break — if things get confused, *Runtime ▸ Restart session* and run
+   again from the top.)
+4. **Keep your work**: **File ▸ Save a copy in Drive**. Colab puts it in your Google
+   Drive under `Colab Notebooks/`, and that copy is where you should keep working —
+   edits to the badge-opened copy are not saved anywhere.
 
-Your instructor gave you an **assignment link**. The badges above open the public
-course copy — fine for reading, but **your graded work must happen in your own
-repository**:
-
-1. **Accept the assignment** by opening your instructor's link and signing in to
-   GitHub. Classroom creates a private repository just for you (named like
-   `assignment-yourusername`).
-2. **Open your copy in Colab**: go to
-   [colab.research.google.com](https://colab.research.google.com), choose
-   **File ▸ Open notebook ▸ GitHub**, tick **“Include private repos”**, and
-   authorize Colab when GitHub asks (if your class organization appears with a
-   *Grant* button, click it). Then select **your** assignment repository and the
-   notebook you're working on.
-3. **Work through the notebook** top to bottom, filling in the ✏️ exercises until
-   the checkers print ✅. (The first time you run, Colab shows a *"Warning: this
-   notebook was not authored by Google"* dialog — click **Run anyway**; it appears
-   for any notebook opened from GitHub.)
-4. **Submit by saving back to GitHub**: **File ▸ Save a copy in GitHub**, make sure
-   the repository shown is **your assignment repo** (not the course copy), keep the
-   file path under `notebooks/`, and leave **“omit code cell output” unchecked** —
-   your instructor needs to see your results and plots. Add a short commit message
-   and click OK.
-5. **Check your submission**: open your repository on github.com — the saved
-   notebook should display with your outputs and charts.
-
-Save back to GitHub whenever you make progress; every save is a submission.
-
-### If you're learning on your own
-
-Just click a badge, and click **Run anyway** on Colab's "not authored by Google"
-warning. To keep your progress, use **File ▸ Save a copy in Drive** (or fork this
-repository and save copies back to your fork).
+Do this once per notebook. If you'd rather keep your progress on GitHub than in
+Drive, fork this repository first and use *File ▸ Save a copy in GitHub* to save
+into your fork.
 
 ## What you need
 
-* A web browser, a **Google account** (for Colab), and a **GitHub account**.
+* A web browser and a **Google account** (for Colab). A GitHub account only if you
+  want to keep your work in a fork instead of Drive.
 * Nothing to install — Colab already has Python, pandas, and matplotlib.
 * Notebook 6 only: a free [OpenAQ API key](https://explore.openaq.org/register).
 
@@ -93,8 +75,8 @@ providers (U.S. Department of State AirNow; AirGradient).
 
 ## For instructors
 
-[`INSTRUCTOR.md`](INSTRUCTOR.md) covers creating the GitHub Classroom, making the
-assignment from this template, the student workflow, reviewing submissions, and
+[`INSTRUCTOR.md`](INSTRUCTOR.md) covers running the course with a group, suggested
+pacing, the support questions to expect, the course's design rationale, and
 regenerating the datasets.
 
 ## Credits
