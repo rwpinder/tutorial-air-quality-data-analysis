@@ -44,6 +44,50 @@ parameters interleaved (`pm25`, `pm1`, `relativehumidity`, `temperature`,
 `um003`), text timestamps with a `+01:00` offset, text values. Columns:
 `location`, `datetime`, `parameter`, `units`, `value` (3,490 rows).
 
+### `lagos_network_feb2025.csv` and `lagos_network_aug2025.csv` — the sensor network
+Two contrasting months across the **Lagos metropolitan network**, used by
+notebooks 7 and 8. Long format: `datetime`, `site_name`, `pm25_value`.
+
+| | February 2025 (Harmattan) | August 2025 (wet season) |
+|---|---|---|
+| Sites | 12 | 11 |
+| Rows | 6,972 | 5,513 |
+| Completeness screen | ≥ 75% of 672 hours | ≥ 60% of 744 hours |
+| Mean PM2.5 | 30.7 µg/m³ | 28.0 µg/m³ |
+| Range | 10.2 – 149.6 | 4.5 – 126.0 |
+
+Seven sites appear in both months, which is the set notebook 8 uses for its
+like-for-like seasonal comparison.
+
+**Why August's screen is lower.** August 2025 was a poor month for this network:
+at a 75% bar only five sensors qualify — too few to interpolate or to define a
+regional background. Dropping to 60% yields eleven. The threshold is stated in
+the notebooks rather than buried, because choosing it *is* part of the analysis.
+
+**A known data-quality problem, kept on purpose.** In August the AirQo sensors
+show hour-to-hour autocorrelation near 0.24, against ~0.66 in February, while the
+one non-AirQo sensor in the August set holds 0.71. The two colocated UNILAG
+sensors (110 m apart) agree on daily means (r ≈ 0.78) but not hourly (r ≈ 0.31).
+That is instrument noise, not weather, and notebook 7 walks students through
+diagnosing it. The seasonal findings in notebooks 7 and 8 were checked against it
+and survive: they live in the daily and >8 h signals, which the noise does not
+reach.
+
+### `lagos_network_sites.csv`
+One row per network site: `site_name`, `latitude`, `longitude`, `source`,
+`completeness_feb2025`, `completeness_aug2025`, `in_feb2025`, `in_aug2025`.
+16 sites total — 14 AirQo, 1 PurpleAir (Lekki/LASEPA, February only) and
+1 OpenAQ/AirGradient (Oshodi Bus Terminal, August only).
+
+### `lagos_basemap.png` and `lagos_basemap.csv`
+A pre-rendered map of metropolitan Lagos and the longitude/latitude rectangle it
+covers (`west`, `east`, `south`, `north`). Rendered once by
+[`../scripts/prepare_network_data.py`](../scripts/prepare_network_data.py) so the
+notebooks need no mapping library and no network access at run time — they draw
+it with `plt.imshow(image, extent=[...])` and scatter sensor coordinates on top.
+Basemap tiles © [Esri](https://www.esri.com) (WorldGrayCanvas; Esri, DeLorme,
+NAVTEQ).
+
 ### `stations.csv`
 One row of metadata per site: `site_name`, `city`, `latitude`, `longitude`,
 `provider`, `site_type`, `location_id` (OpenAQ), `data_file`.
@@ -58,11 +102,27 @@ One row of metadata per site: `site_name`, `city`, `latitude`, `longitude`,
 * Originating providers: **U.S. Department of State / AirNow** (Abuja embassy and
   Lagos consulate reference monitors) and the **AirGradient** open network
   (low-cost sites).
+* **The two `lagos_network_*` files come from a different pipeline.** They were
+  assembled from the AQ agent measurement database by
+  [`../scripts/prepare_network_data.py`](../scripts/prepare_network_data.py), not
+  from the OpenAQ S3 archive, because the Lagos network in early 2025 is
+  overwhelmingly **AirQo** sensors and AirQo measurements are not carried in that
+  archive. They were collected from the AirQo Analytics API
+  (https://analytics.airqo.net), with one PurpleAir site and one
+  OpenAQ/AirGradient site alongside. Values are the database's QA-passing hours
+  (`valid` and `minor_concern` under its four-tier screen), averaged to the hour.
+  Suggested attribution: *“PM2.5 data from the AirQo network (airqo.net), with
+  PurpleAir and AirGradient sites via OpenAQ.”* Confirm AirQo's current terms for
+  redistribution before reusing these two files outside this course.
 * Suggested citation line for student reports: *“PM2.5 data via OpenAQ
   (openaq.org), original measurements by the U.S. Department of State and the
   AirGradient network.”*
 * Low-cost optical sensors can drift and differ from reference monitors;
   treat absolute values from those sites accordingly.
 
-To regenerate everything from the archive: `pip install pandas boto3`, then
+To regenerate the archive-sourced files: `pip install pandas boto3`, then
 `python ../scripts/prepare_data.py` (it prints a QC summary for every file).
+
+To regenerate the two network files and the basemap you additionally need access
+to the AQ agent database: `python ../scripts/prepare_network_data.py` (see its
+`--help`; `--print-sql` shows the two queries if you'd rather run them yourself).

@@ -19,6 +19,11 @@ repositories, no submission step.
    sessions, with notebook 6 (the live OpenAQ API) as homework for the keen.
    Notebook 6 needs a free [OpenAQ API key](https://explore.openaq.org/register);
    if you plan to cover it, have students register beforehand.
+4. **The advanced pair**: notebooks 7 (mapping a sensor network) and 8 (regional
+   background vs local sources) add two further sessions. They are genuinely
+   harder — 7 introduces spatial interpolation, 8 introduces wavelets — and they
+   assume notebook 5. Groups short on time can stop after 5 with a complete
+   course; groups of analysts will get the most out of 7 and 8.
 
 ### The two support questions to expect
 
@@ -48,17 +53,31 @@ so students self-check as they go. To see where a group is:
 * **Audience**: air-quality professionals with zero programming background.
   Domain examples (WHO guidelines, Harmattan, rush hours) carry the motivation.
 * **Self-checks**: every exercise is followed by a `check(...)` cell that prints
-  ✅ or a 💡 hint and never raises — notebooks 1–5 run top-to-bottom even with all
-  exercises unfilled, so "Run all" never strands a student on a traceback.
-  Notebook 6 requires a (free) OpenAQ API key and warns students accordingly.
+  ✅ or a 💡 hint and never raises — notebooks 1–5, 7 and 8 run top-to-bottom even
+  with all exercises unfilled, so "Run all" never strands a student on a
+  traceback. Notebook 6 requires a (free) OpenAQ API key and warns students
+  accordingly.
+* **Notebooks 7 and 8 teach scepticism, not just technique.** Both spend a
+  section on whether the result could be an instrument artefact rather than a
+  finding — the August 2025 AirQo sensors really did lose their hour-to-hour
+  coherence, and the notebooks diagnose it with a colocated sensor pair and an
+  autocorrelation check, then show that the seasonal conclusions survive it. If
+  you cut for time, keep those sections: they are the most transferable thing in
+  the course.
+* **Notebook 8 reproduces a published method.** The four-component split is
+  Zimmerman et al. (2020), *Aerosol and Air Quality Research* 20, 314–328, with
+  the iterative non-negative baseline of Klems et al. (2010). It is the same
+  method the AQ agent's wavelet module runs in production, on the same city, so
+  students who go on to use the agent will recognise it.
 * **Charts render in the browser**: this course uses matplotlib throughout, so
   plots appear inline in Colab (and in the notebook file itself if a student saves
   it with outputs). The optional Plotly cells at the end of notebook 5 are
   interactive in Colab but show as blank if the notebook is viewed on GitHub.
 * **The data is real** and includes real problems on purpose: a low-cost sensor
-  with 45 missing days, a reference monitor with a 203-day outage, and a raw
-  multi-parameter export that must be filtered and parsed. See
-  [`data/README.md`](data/README.md).
+  with 45 missing days, a reference monitor with a 203-day outage, a raw
+  multi-parameter export that must be filtered and parsed, and a network month
+  (August 2025) noisy enough that the completeness bar had to be lowered to 60%
+  to keep enough sensors to map. See [`data/README.md`](data/README.md).
 * **Solutions**: instructor solution notebooks (every exercise filled, all outputs
   rendered) exist but are deliberately not in this public repository — contact the
   course author.
@@ -81,6 +100,15 @@ point at your copy before handing the link out.
   several notebook checks reference the current data's values (peak hour 08:00,
   worst month January, site means); if you regenerate with a different window,
   re-run the notebooks and adjust any check that turns 💡.
+* **Refreshing the network data** (notebooks 7 and 8): these two months come from
+  the AQ agent measurement database rather than the OpenAQ archive, because the
+  Lagos network is mostly AirQo sensors and AirQo data is not in that archive.
+  Regenerate with [`scripts/prepare_network_data.py`](scripts/prepare_network_data.py)
+  — it needs database access (`DATABASE_URL`), or `--print-sql` to run the two
+  queries yourself and `--from-dump` to shape the results offline. The window and
+  completeness thresholds are constants at the top of the file. Both notebooks
+  quote figures from this data in their prose (background shares, correlations,
+  autocorrelations); re-run them and update any number that moves.
 * **Editing notebooks**: edit the `.ipynb` files directly in Jupyter or Colab and
   commit. Keep the two invariants: exercise cells contain only assignments (so an
   unfilled notebook still runs top-to-bottom), and checker cells print rather than

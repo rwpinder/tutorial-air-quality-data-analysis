@@ -5,5 +5,12 @@ plotly>=5.20
 requests>=2.28
 jupyterlab>=4.0
 
+# Notebook 7 (convex hull for the interpolated map):
+scipy>=1.10
+# Notebook 8 (wavelet decomposition):
+PyWavelets>=1.4
+
 # Only needed to regenerate the course data (scripts/prepare_data.py):
 boto3>=1.28
+# Only needed to re-render the Lagos basemap (scripts/prepare_network_data.py):
+contextily>=1.4
