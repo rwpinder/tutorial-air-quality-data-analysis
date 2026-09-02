@@ -4,12 +4,12 @@ An interactive, beginner-friendly course for **air-quality professionals who are
 to programming**. Across seven hands-on notebooks (plus a bonus), you'll go from your
 first line of Python to building the signature charts of air-quality analysis — the
 **diurnal profile**, the **monthly average**, and the maps that show how pollution
-varies across a city — using real PM2.5 measurements from Lagos and Abuja, Nigeria.
+varies across a city — using real PM2.5 measurements from West Africa.
 
-Notebooks 1–5 build the core skills. Notebooks 7 and 8 go further, on a whole
-**sensor network**: mapping it, interpolating between its sites, and splitting each
-measurement into the regional background a city inherits and the pollution it makes
-itself.
+Notebooks 1–5 build the core skills on data from **Lagos and Abuja, Nigeria**.
+Notebooks 7 and 8 go further, on a whole **sensor network** in **Accra, Ghana**:
+mapping it, interpolating between its sites, and splitting each measurement into
+the regional background a city inherits and the pollution it makes itself.
 
 No installation needed: everything runs in your browser with **Google Colab**.
 
@@ -77,14 +77,16 @@ multi-parameter sensor export, a reference monitor with a 203-day outage):
 * **Abuja US Embassy** — a reference-grade calendar year with a dramatic Harmattan,
 * **five contrasting Lagos-area sites** — bus terminal, university, residential,
   urban park, peri-urban,
-* **the Lagos metropolitan network** in two contrasting months — 12 sites in
-  February 2025 (Harmattan) and 11 in August 2025 (wet season), for the mapping
-  and source-separation notebooks,
+* **the Accra metropolitan network** in two contrasting months — 17 sites in
+  February 2025 (Harmattan) and 20 in August 2025 (wet season), for the mapping
+  and source-separation notebooks (including a colocated sensor pair, and one
+  genuinely faulty sensor left in for students to find),
 * plus the raw and gappy files used in the cleaning lessons.
 
 See [`data/README.md`](data/README.md) for the full data dictionary and provenance.
-All measurements are aggregated by [OpenAQ](https://openaq.org) from the original
-providers (U.S. Department of State AirNow; AirGradient).
+Most measurements are aggregated by [OpenAQ](https://openaq.org) from the original
+providers (U.S. Department of State AirNow; AirGradient; Clarity). The Accra
+network files also draw on PurpleAir and AirQo — see `data/README.md`.
 
 ## For instructors
 

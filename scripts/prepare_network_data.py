@@ -1,36 +1,48 @@
-"""Regenerate the Lagos sensor-network datasets used by notebooks 06 and 07.
+"""Regenerate the Accra sensor-network datasets used by notebooks 07 and 08.
 
 Instructors only — students never run this; the CSVs it produces are committed
 in ``data/``. Unlike ``prepare_data.py`` (which pulls single sites from the
-anonymous OpenAQ S3 archive), this script needs the **AQ agent measurement
-database**, because the Lagos network in early 2025 is almost entirely AirQo
-sensors and AirQo data does not reach the OpenAQ S3 archive.
+anonymous OpenAQ S3 archive), this script reads the **AQ agent measurement
+database**, so that PurpleAir and AirQo sites can sit alongside the OpenAQ ones.
 
-Two windows, screened independently:
+Two windows, screened identically:
 
-* ``lagos_network_feb2025.csv`` — February 2025 (Harmattan), sensors reporting
-  at least **75%** of the month's 672 hours;
-* ``lagos_network_aug2025.csv`` — August 2025 (wet season), sensors reporting at
-  least **60%** of the month's 744 hours. The bar is lower here on purpose:
-  August 2025 was a gappy month for the Lagos network and a 75% screen leaves
-  only 5 sensors — too few for a spatial map. This is a real limitation of the
-  data, and notebook 06 says so out loud rather than hiding it.
+* ``accra_network_feb2025.csv`` — February 2025 (Harmattan)
+* ``accra_network_aug2025.csv`` — August 2025 (wet season)
 
-Completeness is measured on QA-passing hours only (``valid`` +
-``minor_concern`` — the same four-tier QA/QC the agent applies elsewhere), so a
-sensor that reported constantly but was flagged as suspect does not qualify.
+A sensor qualifies by reporting at least **70%** of the window's hours. The same
+bar applies to both months — no per-window special case — which is possible
+because the Accra network is healthy in both. Completeness counts QA-passing
+hours only (``valid`` + ``minor_concern`` under the agent's four-tier screen), so
+a sensor that reported constantly but was flagged suspect does not qualify.
+
+Three exclusions, applied before screening:
+
+* **user-uploaded data** — belongs to individual users of the agent, and is not
+  ours to republish;
+* **Tema** (east of longitude -0.05) — a separate port city ~25 km away, present
+  in August only, which would stretch the map and break the seasonal comparison;
+* **the Afri-SET evaluation facility**, except two units. Afri-SET runs 19
+  sensors within ~300 m of each other, which would dominate any interpolated
+  surface and put 19 dots on one pixel. Two PurpleAir units are kept
+  deliberately: notebook 07 uses them as a colocation reference to separate
+  instrument noise from real spatial variation.
 
 Outputs (written to ``--data-dir``, default ../data):
 
-* ``lagos_network_feb2025.csv`` — datetime (UTC), site_name, pm25_value
-* ``lagos_network_aug2025.csv`` — same columns
-* ``lagos_network_sites.csv``   — one row per site: coordinates, source,
+* ``accra_network_feb2025.csv`` — datetime (UTC), site_name, pm25_value
+* ``accra_network_aug2025.csv`` — same columns
+* ``accra_network_sites.csv``   — one row per site: coordinates, source,
   completeness in each window, and which windows it qualified for
-* ``lagos_basemap.png``         — pre-rendered Esri WorldGrayCanvas backdrop
-* ``lagos_basemap.csv``         — that image's extent (west, east, south, north)
+* ``accra_basemap.png``         — pre-rendered Esri WorldGrayCanvas backdrop
+* ``accra_basemap.csv``         — that image's extent (west, east, south, north)
 
-The basemap is rendered here, once, so the notebooks need no mapping library
-and no network access at run time: they just ``imshow`` the committed PNG.
+The basemap is rendered here, once, so the notebooks need no mapping library and
+no network access at run time: they just ``imshow`` the committed PNG.
+
+Accra is on **UTC+0** (``Africa/Accra``, no daylight saving), so UTC timestamps
+and local time coincide — unlike the Lagos files used by notebooks 1-5, which
+are UTC+1.
 
 Usage
 -----
@@ -38,7 +50,7 @@ Straight from the database (needs ``pip install psycopg2-binary``)::
 
     DATABASE_URL=postgresql://... python scripts/prepare_network_data.py
 
-From a CSV dump of the query below (no database driver needed) — this is the
+From a CSV dump of the queries below (no database driver needed) — this is the
 path to use when the database is only reachable over SSH::
 
     python scripts/prepare_network_data.py --from-dump hourly.csv --sites-dump sites.csv
@@ -60,23 +72,32 @@ from pathlib import Path
 
 import pandas as pd
 
-# Lagos metropolitan bounding box (west, south, east, north).
-BBOX = (3.05, 6.30, 3.70, 6.80)
+# Greater Accra bounding box (west, south, east, north).
+BBOX = (-0.50, 5.40, 0.05, 5.90)
+
+MIN_PCT = 70  # same completeness bar in both windows
 
 WINDOWS = {
-    "feb2025": dict(start="2025-02-01", end="2025-03-01", hours=672, min_pct=75,
-                    out="lagos_network_feb2025.csv", label="February 2025"),
-    "aug2025": dict(start="2025-08-01", end="2025-09-01", hours=744, min_pct=60,
-                    out="lagos_network_aug2025.csv", label="August 2025"),
+    "feb2025": dict(start="2025-02-01", end="2025-03-01", hours=672, min_pct=MIN_PCT,
+                    out="accra_network_feb2025.csv", label="February 2025"),
+    "aug2025": dict(start="2025-08-01", end="2025-09-01", hours=744, min_pct=MIN_PCT,
+                    out="accra_network_aug2025.csv", label="August 2025"),
 }
 
-# Hourly QA-passing PM2.5 for every Lagos-area sensor across both windows.
+# --- exclusions (see the module docstring for why each one exists) ---
+EXCLUDE_SOURCES = {"user_upload"}
+TEMA_WEST_LIMIT = -0.05          # anything east of this is Tema, not Accra
+AFRISET_CENTRE = (5.6525, -0.1858)
+AFRISET_RADIUS_DEG = 0.004       # ~450 m
+AFRISET_KEEP = {592, 598}        # two PurpleAir units, for the colocation lesson
+
+# Hourly QA-passing PM2.5 for every Accra-area sensor across both windows.
 SQL_HOURLY = """
 COPY (
   SELECT m.sensor_id, date_trunc('hour', m.datetime) AS dt,
          round(avg(m.pm25_value)::numeric, 2) AS pm25
   FROM measurements m JOIN sensors s ON s.id = m.sensor_id
-  WHERE s.geom && ST_MakeEnvelope(3.05, 6.30, 3.70, 6.80, 4326)
+  WHERE s.geom && ST_MakeEnvelope(-0.50, 5.40, 0.05, 5.90, 4326)
     AND m.pm25_value IS NOT NULL
     AND m.qa_flag IN ('valid','minor_concern')
     AND ( (m.datetime >= '2025-02-01' AND m.datetime < '2025-03-01')
@@ -90,32 +111,38 @@ COPY (
   SELECT s.id AS sensor_id, s.source, s.name,
          ST_Y(s.geom) AS latitude, ST_X(s.geom) AS longitude
   FROM sensors s
-  WHERE s.geom && ST_MakeEnvelope(3.05, 6.30, 3.70, 6.80, 4326)
+  WHERE s.geom && ST_MakeEnvelope(-0.50, 5.40, 0.05, 5.90, 4326)
 ) TO STDOUT WITH CSV HEADER;
 """
 
-# Database sensor names carry device serials and repeated ", Lagos, Nigeria"
-# suffixes. Students should see the neighbourhood, so each qualifying sensor is
-# given a short, unique, human name here. The two UNILAG rows are a genuine
-# colocation pair ~110 m apart — deliberately kept distinct, because notebook 06
-# uses them to show what a near-perfect nearest-neighbour correlation looks like.
+# Short, unique, human names for every sensor that passes screening. Database
+# names carry device serials and trailing whitespace; students should see the
+# neighbourhood. The two Afri-SET rows are a genuine colocation pair at the same
+# facility — kept distinct because notebook 07 uses them to show what instrument
+# noise looks like when two sensors breathe identical air.
 SITE_NAMES = {
-    216: "Oshodi Bus Terminal",
-    7403: "Lekki (LASEPA)",
-    7473: "NIMET Oshodi",
-    7474: "Eti-Osa",
-    7476: "Apapa Port",
-    7477: "Agege",
-    7479: "Araromi",
-    7480: "Ikeja Hospital Road",
-    7483: "Mushin",
-    7484: "UNILAG Colocation B",
-    7485: "Ikotun",
-    7487: "UNILAG Colocation A",
-    7489: "Banana Island",
-    7491: "Oshodi",
-    7493: "Egbeda",
-    7500: "Ifako-Ijaiye",
+    17: "Dansoman Roundabout",
+    18: "Kwashieman",
+    19: "37 Lorry Station",
+    20: "Graphic Road",
+    21: "Lapaz Intersection",
+    22: "Agbogbloshie",
+    23: "Makola",
+    24: "Osu Oxford Street",
+    25: "Nima Market",
+    26: "Kaneshie Market",
+    27: "Kwame Nkrumah Circle",
+    28: "Tetteh Quarshie",
+    555: "Osu Presby School",
+    588: "GSSTI Kwabenya",
+    592: "Afri-SET CC1",
+    593: "UniMAC GIJ Campus",
+    598: "Afri-SET F1",
+    599: "Accra Technical University",
+    641: "West Hills Mall",
+    642: "Ashaley Botwe",
+    646: "Madina Zongo",
+    654: "Amasaman",
 }
 
 
@@ -140,10 +167,37 @@ def load_from_db(url: str) -> "tuple[pd.DataFrame, pd.DataFrame]":
         return copy_to_frame(conn, SQL_HOURLY), copy_to_frame(conn, SQL_SITES)
 
 
-def screen(hourly: pd.DataFrame, key: str) -> "tuple[list[int], pd.Series]":
+def eligible(sites: pd.DataFrame) -> "set[int]":
+    """Sensor ids left after the three exclusions in the module docstring."""
+    keep = set()
+    dropped = {"user_upload": 0, "tema": 0, "afriset": 0}
+    for _, row in sites.iterrows():
+        sid = int(row["sensor_id"])
+        if row["source"] in EXCLUDE_SOURCES:
+            dropped["user_upload"] += 1
+            continue
+        if row["longitude"] > TEMA_WEST_LIMIT:
+            dropped["tema"] += 1
+            continue
+        near_afriset = (abs(row["latitude"] - AFRISET_CENTRE[0]) < AFRISET_RADIUS_DEG
+                        and abs(row["longitude"] - AFRISET_CENTRE[1]) < AFRISET_RADIUS_DEG)
+        if near_afriset and sid not in AFRISET_KEEP:
+            dropped["afriset"] += 1
+            continue
+        keep.add(sid)
+    print("Excluded before screening: "
+          f"{dropped['user_upload']} user-uploaded, {dropped['tema']} in Tema, "
+          f"{dropped['afriset']} surplus Afri-SET colocation units "
+          f"(keeping {sorted(AFRISET_KEEP)})")
+    return keep
+
+
+def screen(hourly: pd.DataFrame, key: str,
+           allowed: "set[int]") -> "tuple[list[int], pd.Series]":
     """Sensor ids meeting the window's completeness bar, plus every sensor's %."""
     w = WINDOWS[key]
-    win = hourly[(hourly["dt"] >= w["start"]) & (hourly["dt"] < w["end"])]
+    win = hourly[(hourly["dt"] >= w["start"]) & (hourly["dt"] < w["end"])
+                 & (hourly["sensor_id"].isin(allowed))]
     pct = win.groupby("sensor_id").size() / w["hours"] * 100
     passing = sorted(pct[pct >= w["min_pct"]].index)
     unnamed = [s for s in passing if s not in SITE_NAMES]
@@ -199,8 +253,8 @@ def write_sites(sites: pd.DataFrame, passing: "dict[str, list[int]]",
             in_aug2025=sid in passing["aug2025"],
         ))
     out = pd.DataFrame(rows).sort_values("site_name").reset_index(drop=True)
-    out.to_csv(data_dir / "lagos_network_sites.csv", index=False)
-    print(f"\n=== lagos_network_sites.csv ===")
+    out.to_csv(data_dir / "accra_network_sites.csv", index=False)
+    print(f"\n=== accra_network_sites.csv ===")
     print(f"  {len(out)} sites  ({out['in_feb2025'].sum()} in Feb, "
           f"{out['in_aug2025'].sum()} in Aug, "
           f"{(out['in_feb2025'] & out['in_aug2025']).sum()} in both)")
@@ -248,12 +302,12 @@ def render_basemap(sites: pd.DataFrame, data_dir: Path, pad: float = 0.035) -> N
     ax.set_ylim(south, north)
     ax.axis("off")
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-    fig.savefig(data_dir / "lagos_basemap.png", dpi=140, bbox_inches="tight", pad_inches=0)
+    fig.savefig(data_dir / "accra_basemap.png", dpi=140, bbox_inches="tight", pad_inches=0)
     plt.close(fig)
 
     pd.DataFrame([dict(west=west, east=east, south=south, north=north)]).round(6).to_csv(
-        data_dir / "lagos_basemap.csv", index=False)
-    print(f"\n=== lagos_basemap.png ===")
+        data_dir / "accra_basemap.csv", index=False)
+    print(f"\n=== accra_basemap.png ===")
     print(f"  extent: lon {west:.4f}..{east:.4f}  lat {south:.4f}..{north:.4f}")
     print("  attribution: Tiles (C) Esri — Esri, DeLorme, NAVTEQ")
 
@@ -291,9 +345,10 @@ def main() -> None:
     hourly["dt"] = pd.to_datetime(hourly["dt"], utc=True)
     args.data_dir.mkdir(parents=True, exist_ok=True)
 
+    allowed = eligible(sites)
     passing, pcts = {}, {}
     for key in WINDOWS:
-        passing[key], pcts[key] = screen(hourly, key)
+        passing[key], pcts[key] = screen(hourly, key, allowed)
     for key in WINDOWS:
         write_window(hourly, key, passing[key], args.data_dir)
     site_table = write_sites(sites, passing, pcts, args.data_dir)

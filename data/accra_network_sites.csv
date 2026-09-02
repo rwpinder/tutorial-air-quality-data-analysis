@@ -1,0 +1,23 @@
+site_name,latitude,longitude,source,completeness_feb2025,completeness_aug2025,in_feb2025,in_aug2025
+37 Lorry Station,5.58892,-0.17964,openaq,83.6,90.7,True,True
+Accra Technical University,5.553953,-0.206814,purpleair,91.8,5.2,True,False
+Afri-SET CC1,5.651454,-0.185638,purpleair,94.8,95.4,True,True
+Afri-SET F1,5.651431,-0.185677,purpleair,94.9,95.4,True,True
+Agbogbloshie,5.55147,-0.21927,openaq,71.7,82.9,True,True
+Amasaman,5.7031,-0.29954,openaq,0.0,82.0,False,True
+Ashaley Botwe,5.67614,-0.12412,openaq,83.5,79.7,True,True
+Dansoman Roundabout,5.55851,-0.26448,openaq,73.1,82.9,True,True
+GSSTI Kwabenya,5.665503,-0.229042,purpleair,0.0,93.5,False,True
+Graphic Road,5.55895,-0.22526,openaq,73.4,82.7,True,True
+Kaneshie Market,5.56608,-0.23548,openaq,72.8,82.5,True,True
+Kwame Nkrumah Circle,5.56936,-0.21404,openaq,71.9,0.0,True,False
+Kwashieman,5.59389,-0.26877,openaq,84.2,87.4,True,True
+Lapaz Intersection,5.60724,-0.24896,openaq,84.8,91.3,True,True
+Madina Zongo,5.6779,-0.17295,openaq,71.6,82.8,True,True
+Makola,5.54848,-0.2072,openaq,72.2,81.3,True,True
+Nima Market,5.58212,-0.19863,openaq,44.5,83.5,False,True
+Osu Oxford Street,5.55969,-0.18202,openaq,69.6,81.9,False,True
+Osu Presby School,5.550753,-0.186545,airqo,0.0,73.3,False,True
+Tetteh Quarshie,5.61919,-0.17626,openaq,72.0,83.6,True,True
+UniMAC GIJ Campus,5.563237,-0.191056,purpleair,95.5,94.4,True,True
+West Hills Mall,5.54579,-0.34229,openaq,83.3,80.2,True,True

@@ -44,43 +44,51 @@ parameters interleaved (`pm25`, `pm1`, `relativehumidity`, `temperature`,
 `um003`), text timestamps with a `+01:00` offset, text values. Columns:
 `location`, `datetime`, `parameter`, `units`, `value` (3,490 rows).
 
-### `lagos_network_feb2025.csv` and `lagos_network_aug2025.csv` — the sensor network
-Two contrasting months across the **Lagos metropolitan network**, used by
+### `accra_network_feb2025.csv` and `accra_network_aug2025.csv` — the sensor network
+Two contrasting months across the **Accra metropolitan network**, Ghana, used by
 notebooks 7 and 8. Long format: `datetime`, `site_name`, `pm25_value`.
 
 | | February 2025 (Harmattan) | August 2025 (wet season) |
 |---|---|---|
-| Sites | 12 | 11 |
-| Rows | 6,972 | 5,513 |
-| Completeness screen | ≥ 75% of 672 hours | ≥ 60% of 744 hours |
-| Mean PM2.5 | 30.7 µg/m³ | 28.0 µg/m³ |
-| Range | 10.2 – 149.6 | 4.5 – 126.0 |
+| Sites | 17 | 20 |
+| Rows | 9,241 | 12,703 |
+| Completeness screen | ≥ 70% of 672 hours | ≥ 70% of 744 hours |
+| Mean PM2.5 | 32.6 µg/m³ | 22.4 µg/m³ |
+| Range | 7.3 – 140.8 | 1.9 – 134.5 |
 
-Seven sites appear in both months, which is the set notebook 8 uses for its
-like-for-like seasonal comparison.
+The same 70% bar applies to both months. Fifteen sites appear in both, which is
+the set notebook 8 uses for its like-for-like seasonal comparison. Accra is on
+**UTC+0** (`Africa/Accra`, no daylight saving), so UTC and local time coincide —
+unlike the Lagos files above, which are UTC+1.
 
-**Why August's screen is lower.** August 2025 was a poor month for this network:
-at a 75% bar only five sensors qualify — too few to interpolate or to define a
-regional background. Dropping to 60% yields eleven. The threshold is stated in
-the notebooks rather than buried, because choosing it *is* part of the analysis.
+**Why Accra and not Lagos for these two notebooks.** Lagos was tried first and
+abandoned. Its network has a much lower sensor density, and in August 2025 its
+AirQo sensors lost most of their hour-to-hour coherence (median lag-1
+autocorrelation 0.24, against 0.66 in February), which made a seasonal comparison
+of spatial correlation unreliable. Accra's equivalent figures are 0.79 and 0.77 —
+healthy in both months — so a seasonal difference there can be read as
+atmosphere rather than instrument drift.
 
-**A known data-quality problem, kept on purpose.** In August the AirQo sensors
-show hour-to-hour autocorrelation near 0.24, against ~0.66 in February, while the
-one non-AirQo sensor in the August set holds 0.71. The two colocated UNILAG
-sensors (110 m apart) agree on daily means (r ≈ 0.78) but not hourly (r ≈ 0.31).
-That is instrument noise, not weather, and notebook 7 walks students through
-diagnosing it. The seasonal findings in notebooks 7 and 8 were checked against it
-and survive: they live in the daily and >8 h signals, which the noise does not
-reach.
+**Two deliberate quirks, both used for teaching.**
 
-### `lagos_network_sites.csv`
+* *A colocation pair.* `Afri-SET CC1` and `Afri-SET F1` are two PurpleAir units
+  **5 m apart** at the Afri-SET sensor-evaluation facility. They correlate at
+  r = 0.99 (February) and 1.00 (August) — the reference for what healthy
+  instruments in identical air look like. Notebook 7 uses them as a yardstick.
+* *One broken sensor, left in on purpose.* `Osu Presby School` passed the
+  completeness screen and has an unremarkable mean and range, but its August
+  series has a lag-1 autocorrelation of 0.06 and correlates with its 1.1 km
+  neighbour at r = 0.01. It is a real fault that only the *time ordering*
+  exposes, and notebook 7 walks students through finding it. Removing it moves
+  the August regional background by under 3%.
+
+### `accra_network_sites.csv`
 One row per network site: `site_name`, `latitude`, `longitude`, `source`,
 `completeness_feb2025`, `completeness_aug2025`, `in_feb2025`, `in_aug2025`.
-16 sites total — 14 AirQo, 1 PurpleAir (Lekki/LASEPA, February only) and
-1 OpenAQ/AirGradient (Oshodi Bus Terminal, August only).
+22 sites total — 16 via OpenAQ (the Clarity network), 5 PurpleAir, 1 AirQo.
 
-### `lagos_basemap.png` and `lagos_basemap.csv`
-A pre-rendered map of metropolitan Lagos and the longitude/latitude rectangle it
+### `accra_basemap.png` and `accra_basemap.csv`
+A pre-rendered map of metropolitan Accra and the longitude/latitude rectangle it
 covers (`west`, `east`, `south`, `north`). Rendered once by
 [`../scripts/prepare_network_data.py`](../scripts/prepare_network_data.py) so the
 notebooks need no mapping library and no network access at run time — they draw
@@ -102,18 +110,17 @@ One row of metadata per site: `site_name`, `city`, `latitude`, `longitude`,
 * Originating providers: **U.S. Department of State / AirNow** (Abuja embassy and
   Lagos consulate reference monitors) and the **AirGradient** open network
   (low-cost sites).
-* **The two `lagos_network_*` files come from a different pipeline.** They were
+* **The two `accra_network_*` files come from a different pipeline.** They were
   assembled from the AQ agent measurement database by
-  [`../scripts/prepare_network_data.py`](../scripts/prepare_network_data.py), not
-  from the OpenAQ S3 archive, because the Lagos network in early 2025 is
-  overwhelmingly **AirQo** sensors and AirQo measurements are not carried in that
-  archive. They were collected from the AirQo Analytics API
-  (https://analytics.airqo.net), with one PurpleAir site and one
-  OpenAQ/AirGradient site alongside. Values are the database's QA-passing hours
-  (`valid` and `minor_concern` under its four-tier screen), averaged to the hour.
-  Suggested attribution: *“PM2.5 data from the AirQo network (airqo.net), with
-  PurpleAir and AirGradient sites via OpenAQ.”* Confirm AirQo's current terms for
-  redistribution before reusing these two files outside this course.
+  [`../scripts/prepare_network_data.py`](../scripts/prepare_network_data.py),
+  not from the OpenAQ S3 archive, so that PurpleAir and AirQo sites could sit
+  alongside the OpenAQ ones. Values are the database's QA-passing hours (`valid`
+  and `minor_concern` under its four-tier screen), averaged to the hour.
+  Originating providers for these two files: the **Clarity** network and Ghana
+  EPA sites via OpenAQ, **PurpleAir** (including the Afri-SET evaluation
+  facility), and **AirQo**. Suggested attribution: *“PM2.5 data via OpenAQ
+  (openaq.org), PurpleAir and AirQo.”* Confirm each provider's current terms
+  before reusing these two files outside this course.
 * Suggested citation line for student reports: *“PM2.5 data via OpenAQ
   (openaq.org), original measurements by the U.S. Department of State and the
   AirGradient network.”*
@@ -123,6 +130,7 @@ One row of metadata per site: `site_name`, `city`, `latitude`, `longitude`,
 To regenerate the archive-sourced files: `pip install pandas boto3`, then
 `python ../scripts/prepare_data.py` (it prints a QC summary for every file).
 
-To regenerate the two network files and the basemap you additionally need access
-to the AQ agent database: `python ../scripts/prepare_network_data.py` (see its
-`--help`; `--print-sql` shows the two queries if you'd rather run them yourself).
+To regenerate the two Accra network files and the basemap you additionally need
+access to the AQ agent database: `python ../scripts/prepare_network_data.py` (see
+its `--help`; `--print-sql` shows the two queries if you'd rather run them
+yourself).
