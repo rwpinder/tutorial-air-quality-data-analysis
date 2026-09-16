@@ -290,7 +290,7 @@ def write_sites(sites: pd.DataFrame, passing: "dict[str, list[int]]",
 
 
 def render_basemap(sites: pd.DataFrame, data_dir: Path, pad: float = 0.035) -> None:
-    """Fetch an OpenStreetMap backdrop once and commit it as a PNG + extent.
+    """Fetch an Esri WorldGrayCanvas backdrop once and commit it as a PNG + extent.
 
     Rendering here rather than in the notebooks keeps the student experience
     dependency-free and offline-safe: no contextily, no tile fetch, and the
