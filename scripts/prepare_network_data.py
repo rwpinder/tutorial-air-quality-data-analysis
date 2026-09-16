@@ -66,6 +66,7 @@ Re-rendering the basemap needs ``pip install contextily``; pass
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import sys
 from pathlib import Path
@@ -88,8 +89,8 @@ WINDOWS = {
 EXCLUDE_SOURCES = {"user_upload"}
 TEMA_WEST_LIMIT = -0.05          # anything east of this is Tema, not Accra
 AFRISET_CENTRE = (5.6525, -0.1858)
-AFRISET_RADIUS_DEG = 0.004       # ~450 m
-AFRISET_KEEP = {592, 598}        # two PurpleAir units, for the colocation lesson
+AFRISET_RADIUS_KM = 0.45          # true radial exclusion distance (~450 m)
+AFRISET_KEEP = {592, 598}         # two PurpleAir units, for the colocation lesson
 
 # Hourly QA-passing PM2.5 for every Accra-area sensor across both windows.
 SQL_HOURLY = """
@@ -164,6 +165,9 @@ def load_from_db(url: str) -> "tuple[pd.DataFrame, pd.DataFrame]":
         return pd.read_csv(buf)
 
     with psycopg2.connect(url) as conn:
+        # Keep database timestamps consistent with the UTC time windows used here.
+        with conn.cursor() as cur:
+            cur.execute("SET TIME ZONE 'UTC'")
         return copy_to_frame(conn, SQL_HOURLY), copy_to_frame(conn, SQL_SITES)
 
 
@@ -171,24 +175,39 @@ def eligible(sites: pd.DataFrame) -> "set[int]":
     """Sensor ids left after the three exclusions in the module docstring."""
     keep = set()
     dropped = {"user_upload": 0, "tema": 0, "afriset": 0}
+
+    # Use the intended 450 m radial distance instead of a rectangular
+    # lat/lon threshold for more accurate Afri-SET sensor screening.
+    centre_lat, centre_lon = AFRISET_CENTRE
+    km_per_deg_lat = 111.32
+    km_per_deg_lon = 111.32 * math.cos(math.radians(centre_lat))
+
     for _, row in sites.iterrows():
         sid = int(row["sensor_id"])
+
         if row["source"] in EXCLUDE_SOURCES:
             dropped["user_upload"] += 1
             continue
+
         if row["longitude"] > TEMA_WEST_LIMIT:
             dropped["tema"] += 1
             continue
-        near_afriset = (abs(row["latitude"] - AFRISET_CENTRE[0]) < AFRISET_RADIUS_DEG
-                        and abs(row["longitude"] - AFRISET_CENTRE[1]) < AFRISET_RADIUS_DEG)
+
+        dy_km = (float(row["latitude"]) - centre_lat) * km_per_deg_lat
+        dx_km = (float(row["longitude"]) - centre_lon) * km_per_deg_lon
+        near_afriset = math.hypot(dx_km, dy_km) <= AFRISET_RADIUS_KM
+
         if near_afriset and sid not in AFRISET_KEEP:
             dropped["afriset"] += 1
             continue
+
         keep.add(sid)
+
     print("Excluded before screening: "
           f"{dropped['user_upload']} user-uploaded, {dropped['tema']} in Tema, "
           f"{dropped['afriset']} surplus Afri-SET colocation units "
           f"(keeping {sorted(AFRISET_KEEP)})")
+
     return keep
 
 
@@ -198,6 +217,13 @@ def screen(hourly: pd.DataFrame, key: str,
     w = WINDOWS[key]
     win = hourly[(hourly["dt"] >= w["start"]) & (hourly["dt"] < w["end"])
                  & (hourly["sensor_id"].isin(allowed))]
+
+    # Guard against duplicate sensor-hours inflating the completeness percentage.
+    duplicate_mask = win.duplicated(["sensor_id", "dt"], keep=False)
+    if duplicate_mask.any():
+        examples = ( win.loc[duplicate_mask, ["sensor_id", "dt"]].head().to_dict("records"))
+        raise SystemExit(f"{w['label']}: duplicate sensor-hour records found; examples: {examples}")
+
     pct = win.groupby("sensor_id").size() / w["hours"] * 100
     passing = sorted(pct[pct >= w["min_pct"]].index)
     unnamed = [s for s in passing if s not in SITE_NAMES]
