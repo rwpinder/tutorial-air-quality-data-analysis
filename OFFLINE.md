@@ -15,19 +15,31 @@ does — same cells, same **Shift+Enter**, same charts.
 
 ## Windows: one file installs everything
 
-Download **`AirQualityTutorial-…-Windows-x86_64.exe`** (about 340 MB) from the
-[**Releases page**](https://github.com/rwpinder/tutorial-air-quality-data-analysis/releases)
-and run it. Python, JupyterLab, every package and the course itself are inside it, so
-there is nothing else to install and nothing to fetch later.
+Download **`AirQualityTutorial-…-Windows-x86_64.zip`** (about 340 MB) from the
+[**Releases page**](https://github.com/rwpinder/tutorial-air-quality-data-analysis/releases).
+Python, JupyterLab, every package and the course itself are inside it, so there is
+nothing else to install and nothing to fetch later.
 
-* Windows will say **“Windows protected your PC”**. Click **More info ▸ Run anyway** —
-  the installer is simply not code-signed, which costs a yearly fee.
-* It installs for you alone. No administrator password, no changes to your `PATH`, and
-  no interference with any other Python on the machine.
-* When it finishes you have an **Air Quality Tutorial** shortcut on your desktop and in
-  the Start menu. Click it and JupyterLab opens in your browser, showing the notebooks,
-  which live in `Documents\Air Quality Tutorial`.
-* To remove it later: *Settings ▸ Apps*. Your notebooks in Documents are left alone.
+1. **Unzip it.** Right-click the downloaded file ▸ *Extract All* ▸ *Extract*. Inside is
+   `AirQualityTutorial-…-Windows-x86_64.exe`.
+2. **Run that file.** Windows will say **“Windows protected your PC”** — click
+   **More info ▸ Run anyway**. The installer is simply not code-signed, which costs a
+   yearly fee; the warning is about the missing signature, not about the contents.
+3. **Click through the installer.** It installs for you alone: no administrator
+   password, no changes to your `PATH`, and no interference with any other Python on
+   the machine.
+4. **Open the course.** You now have an **Air Quality Tutorial** shortcut on your
+   desktop and in the Start menu. Click it and JupyterLab opens in your browser,
+   showing the notebooks, which live in `Documents\Air Quality Tutorial`.
+
+To remove it later: *Settings ▸ Apps*. Your notebooks in Documents are left alone.
+
+> **Why a zip, and why is it not smaller?** The zip exists because Edge and Chrome
+> refuse to download a `.exe` without a fight — you get a file called
+> *“Unconfirmed 123456.crdownload”* that will not run. It is the same size as the
+> installer, because the installer's contents are already compressed. If you do
+> download the `.exe` directly and hit that: press **Ctrl+J**, find the item, click
+> **⋯ ▸ Keep**, then **Show more ▸ Keep anyway**.
 
 Then skip ahead to [What is different from Colab](#what-is-different-from-colab).
 

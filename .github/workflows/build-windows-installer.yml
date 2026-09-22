@@ -50,6 +50,18 @@ jobs:
       - name: Show what was built
         run: Get-ChildItem dist | Select-Object Name, @{n='MB';e={[math]::Round($_.Length/1MB,1)}}
 
+      - name: Zip it, for browsers that refuse to download an .exe
+        # Edge and Chrome block or "Unconfirmed…" an .exe download and students have
+        # to hunt for a Keep button. A zip downloads without an argument. It is not
+        # smaller — the installer's payload is already compressed — it is just one
+        # fewer thing to explain to a room.
+        run: |
+          $exe = (Get-ChildItem dist/*.exe)[0]
+          $zip = Join-Path $exe.DirectoryName ($exe.BaseName + '.zip')
+          Compress-Archive -Path $exe.FullName -DestinationPath $zip -Force
+          '{0}: {1:N0} MB' -f $exe.Name, ($exe.Length / 1MB)
+          '{0}: {1:N0} MB' -f (Split-Path $zip -Leaf), ((Get-Item $zip).Length / 1MB)
+
       - name: Install it silently, as a student would
         run: |
           $exe = (Get-ChildItem dist/*.exe)[0].FullName
@@ -98,7 +110,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: dist/*.exe
+          path: |
+            dist/*.exe
+            dist/*.zip
           retention-days: 14
 
       - name: Attach it to the release
@@ -106,11 +120,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $exe = (Get-ChildItem dist/*.exe)[0].FullName
-          $notes = 'Windows installer for the course: Python, JupyterLab and every package, plus the notebooks and data. Install it while you have a connection; everything after that works offline. Built and test-run by .github/workflows/build-windows-installer.yml.'
+          $assets = (Get-ChildItem dist/* -Include *.exe, *.zip).FullName
+          $notes = @(
+            'Windows installer for the course: Python, JupyterLab and every package, plus the notebooks and data. Install it while you have a connection; everything after that works offline.',
+            '',
+            '**Download the .zip.** Edge and Chrome block a bare .exe download and leave a file called "Unconfirmed ....crdownload" behind. Unzip it, run the .exe inside, and click **More info > Run anyway** when Windows warns about the unsigned installer. The zip is the same size — the installer is already compressed.',
+            '',
+            'Built, installed and test-run on a Windows machine by .github/workflows/build-windows-installer.yml: notebooks 1-5, 7 and 8 all execute inside the installed environment before this file is published.'
+          ) -join "`n"
           gh release view windows-installer 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create windows-installer $exe --title 'Windows installer' --notes $notes
+            gh release create windows-installer @assets --title 'Windows installer' --notes $notes
           } else {
-            gh release upload windows-installer $exe --clobber
+            gh release upload windows-installer @assets --clobber
           }
