@@ -7,6 +7,16 @@ set "PREFIX=%~dp0"
 set "COURSE=%USERPROFILE%\Documents\Air Quality Tutorial"
 set "PATH=%PREFIX%;%PREFIX%Library\mingw-w64\bin;%PREFIX%Library\usr\bin;%PREFIX%Library\bin;%PREFIX%Scripts;%PREFIX%bin;%PATH%"
 
+rem Unpack the course on first run if the install-time step did not manage it —
+rem the launcher is what students actually click, so it is the reliable place to
+rem make sure the notebooks exist.
+if not exist "%COURSE%\notebooks" (
+    if exist "%PREFIX%course.zip" (
+        echo   Setting up your notebooks in %COURSE% ...
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -LiteralPath '%PREFIX%course.zip' -DestinationPath '%COURSE%' -Force"
+    )
+)
+
 if not exist "%COURSE%" mkdir "%COURSE%"
 cd /d "%COURSE%"
 

@@ -59,6 +59,17 @@ jobs:
             throw 'the installer did not create a Python environment'
           }
 
+      - name: What the install produced
+        run: |
+          Write-Host '--- install folder'
+          Get-ChildItem C:\AQTutorial | Select-Object -ExpandProperty Name
+          Write-Host '--- post_install.log'
+          if (Test-Path C:\AQTutorial\post_install.log) {
+            Get-Content C:\AQTutorial\post_install.log
+          } else {
+            Write-Host 'NO LOG — the post-install script never ran'
+          }
+
       - name: The notebooks landed in Documents
         run: |
           $course = Join-Path $env:USERPROFILE 'Documents\Air Quality Tutorial'
