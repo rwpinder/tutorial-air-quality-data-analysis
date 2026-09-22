@@ -71,6 +71,8 @@ jupyter lab notebooks/
 [Releases page](https://github.com/rwpinder/tutorial-air-quality-data-analysis/releases)
 and run it. Python, JupyterLab, every package and the course are all inside; it leaves
 an *Air Quality Tutorial* shortcut that opens the notebooks.
+[**WINDOWS.md**](WINDOWS.md) walks through it click by click, including the two
+"unrecognised app" warnings Windows shows and what to press.
 
 New to Python, or working somewhere without a reliable connection?
 [**OFFLINE.md**](OFFLINE.md) ([printable PDF](OFFLINE.pdf)) covers that installer, the
