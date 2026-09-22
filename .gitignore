@@ -4,3 +4,5 @@ __pycache__/
 scripts/.s3_cache/
 .venv/
 notebooks/*.png
+installer/course.zip
+dist/

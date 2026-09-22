@@ -1,0 +1,105 @@
+name: Windows installer
+
+# Builds the one-file Windows installer, then proves it works by installing it
+# silently on the runner and executing every offline notebook inside it.
+# Run it by hand from the Actions tab (tick "Attach the installer to a GitHub
+# Release" to publish it), or push to an installer/** branch while iterating.
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Attach the installer to the windows-installer release
+        type: boolean
+        default: false
+  push:
+    branches: ['installer/**']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pack the course files
+        run: |
+          Compress-Archive -Force -DestinationPath installer/course.zip `
+            -Path notebooks, data, README.md, OFFLINE.md, OFFLINE.pdf, LICENSE
+          "course.zip is {0:N1} MB" -f ((Get-Item installer/course.zip).Length / 1MB)
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: build
+
+      - name: Install constructor
+        shell: bash -el {0}
+        run: conda install -y -c conda-forge constructor
+
+      - name: Build the installer
+        shell: bash -el {0}
+        run: constructor installer --output-dir dist
+
+      - name: Show what was built
+        run: Get-ChildItem dist | Select-Object Name, @{n='MB';e={[math]::Round($_.Length/1MB,1)}}
+
+      - name: Install it silently, as a student would
+        run: |
+          $exe = (Get-ChildItem dist/*.exe)[0].FullName
+          Start-Process -FilePath $exe -Wait -NoNewWindow `
+            -ArgumentList '/S', '/InstallationType=JustMe', '/D=C:\AQTutorial'
+          if (-not (Test-Path 'C:\AQTutorial\python.exe')) {
+            throw 'the installer did not create a Python environment'
+          }
+
+      - name: The notebooks landed in Documents
+        run: |
+          $course = Join-Path $env:USERPROFILE 'Documents\Air Quality Tutorial'
+          if (-not (Test-Path (Join-Path $course 'notebooks'))) {
+            throw "course files are missing from $course"
+          }
+          Get-ChildItem $course
+
+      - name: There is a Start-menu shortcut
+        run: |
+          $lnk = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Air Quality Tutorial.lnk'
+          if (-not (Test-Path $lnk)) { throw 'no Start-menu shortcut was created' }
+
+      - name: Every offline notebook runs inside the installed environment
+        run: |
+          $course = Join-Path $env:USERPROFILE 'Documents\Air Quality Tutorial\notebooks'
+          foreach ($n in '01', '02', '03', '04', '05', '07', '08') {
+            $nb = (Get-ChildItem (Join-Path $course "$n`_*.ipynb"))[0].FullName
+            Write-Host "--- $nb"
+            & C:\AQTutorial\python.exe -m jupyter nbconvert --to notebook --execute `
+                --inplace --ExecutePreprocessor.timeout=900 $nb
+            if ($LASTEXITCODE -ne 0) { throw "notebook $nb failed" }
+          }
+          Write-Host 'all seven offline notebooks ran'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/*.exe
+          retention-days: 14
+
+      - name: Attach it to the release
+        if: inputs.publish_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $exe = (Get-ChildItem dist/*.exe)[0].FullName
+          $notes = 'Windows installer for the course: Python, JupyterLab and every package, plus the notebooks and data. Install it while you have a connection; everything after that works offline. Built and test-run by .github/workflows/build-windows-installer.yml.'
+          gh release view windows-installer 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create windows-installer $exe --title 'Windows installer' --notes $notes
+          } else {
+            gh release upload windows-installer $exe --clobber
+          }
