@@ -13,6 +13,29 @@ does — same cells, same **Shift+Enter**, same charts.
 
 ---
 
+## Windows: one file installs everything
+
+Download **`AirQualityTutorial-…-Windows-x86_64.exe`** (about 340 MB) from the
+[**Releases page**](https://github.com/rwpinder/tutorial-air-quality-data-analysis/releases)
+and run it. Python, JupyterLab, every package and the course itself are inside it, so
+there is nothing else to install and nothing to fetch later.
+
+* Windows will say **“Windows protected your PC”**. Click **More info ▸ Run anyway** —
+  the installer is simply not code-signed, which costs a yearly fee.
+* It installs for you alone. No administrator password, no changes to your `PATH`, and
+  no interference with any other Python on the machine.
+* When it finishes you have an **Air Quality Tutorial** shortcut on your desktop and in
+  the Start menu. Click it and JupyterLab opens in your browser, showing the notebooks,
+  which live in `Documents\Air Quality Tutorial`.
+* To remove it later: *Settings ▸ Apps*. Your notebooks in Documents are left alone.
+
+Then skip ahead to [What is different from Colab](#what-is-different-from-colab).
+
+Everything between here and there is for macOS and Linux — and for anyone on Windows
+who would rather install the pieces themselves.
+
+---
+
 ## What you need to download
 
 Do this part while you are connected. About **150 MB** in total, once.
@@ -217,8 +240,14 @@ not pulling it over the same weak connection.
 
 ### If the machines never get online
 
-Build a USB stick containing the Python installer, the course ZIP, and a folder of
-pre-downloaded packages (a “wheelhouse”).
+**For a room of Windows machines, put the one-file installer on a USB stick and stop
+there.** It is self-contained, so each machine needs nothing else: copy, run, click
+through the unsigned-software warning, done in a few minutes per laptop. Rebuild it
+from the Actions tab whenever the notebooks change (see
+[`installer/README.md`](installer/README.md)).
+
+For macOS or Linux machines, build a USB stick containing the Python installer, the
+course ZIP, and a folder of pre-downloaded packages (a “wheelhouse”).
 
 On a connected machine **of the same operating system and the same Python version** as
 the target machines:
@@ -271,3 +300,8 @@ On 2026-09-22, on macOS, in a newly created environment: Python 3.14.3 with pand
 3.0.6, matplotlib 3.11.2, plotly 7.1.0, scipy 1.18.1, PyWavelets 1.8.0 and JupyterLab
 4.6.4. Notebooks 1–5, 7 and 8 each ran top to bottom reading the local `data/` folder,
 and JupyterLab served the course folder without incident.
+
+The Windows installer is tested the same way, on every build: the workflow installs it
+silently on a Windows machine, checks the notebooks reached Documents and the shortcut
+exists, then runs those same seven notebooks inside the installed environment. A
+published installer is one that passed all of it.
