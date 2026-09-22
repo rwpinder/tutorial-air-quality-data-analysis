@@ -24,6 +24,8 @@ Nobody needs a Windows machine: the build runs on a GitHub-hosted Windows runner
 2. Tick **Attach the installer to the windows-installer release** to publish it;
    leave it unticked for a trial build, which only uploads an artifact.
 
+Both the `.exe` and a `.zip` of it are attached to the release.
+
 The workflow does not just build — it installs the result silently and then executes
 notebooks 1–5, 7 and 8 inside the installed environment, so a green run means the
 installer really works, not merely that it compiled. Pushing to a branch named
@@ -40,9 +42,13 @@ installer really works, not merely that it compiled. Pushing to a branch named
 
 ## Two things to know
 
-**It is not code-signed.** Windows shows *“Windows protected your PC”* on first run;
-students click **More info ▸ Run anyway**. Removing that warning needs a paid
-code-signing certificate. Worth telling a group up front, because it looks alarming.
+**It is not code-signed**, and students meet that twice. Edge and Chrome will not
+download a bare `.exe` — the download stalls as *“Unconfirmed 123456.crdownload”* until
+the student digs out **⋯ ▸ Keep ▸ Keep anyway**, which is why the release also carries a
+`.zip` (same size; the payload is already compressed) and why the docs point at the zip.
+Then Windows shows *“Windows protected your PC”* on first run: **More info ▸ Run
+anyway**. Only a paid code-signing certificate removes either. Worth warning a group
+up front, because both look alarming.
 
 **The installer is a fixed snapshot.** It pins Python 3.13 and whatever package
 versions conda-forge served on build day. Rebuild it after changing the notebooks or
