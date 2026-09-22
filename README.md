@@ -67,11 +67,16 @@ pip install -r requirements.txt
 jupyter lab notebooks/
 ```
 
+**On Windows there is nothing to assemble:** download the installer from the
+[Releases page](https://github.com/rwpinder/tutorial-air-quality-data-analysis/releases)
+and run it. Python, JupyterLab, every package and the course are all inside; it leaves
+an *Air Quality Tutorial* shortcut that opens the notebooks.
+
 New to Python, or working somewhere without a reliable connection?
-[**OFFLINE.md**](OFFLINE.md) ([printable PDF](OFFLINE.pdf)) walks through installing
-Python and JupyterLab step by step, and explains how to prepare machines that never
-get online. All the course data ships in `data/`, so notebooks 1–5, 7 and 8 run with
-no connection at all.
+[**OFFLINE.md**](OFFLINE.md) ([printable PDF](OFFLINE.pdf)) covers that installer, the
+step-by-step route for macOS and Linux, and how to prepare machines that never get
+online. All the course data ships in `data/`, so notebooks 1–5, 7 and 8 run with no
+connection at all.
 </details>
 
 ## The data

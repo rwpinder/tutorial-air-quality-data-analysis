@@ -1,0 +1,41 @@
+# Windows installer for the course: Python, every package the notebooks need, and
+# the notebooks themselves, in one .exe. Built by
+# .github/workflows/build-windows-installer.yml on a GitHub-hosted Windows runner —
+# see installer/README.md.
+
+name: AirQualityTutorial
+version: 1.0.0
+company: Air Quality Data Analysis course
+
+channels:
+  - conda-forge
+
+specs:
+  - python=3.13
+  - pandas
+  - matplotlib-base      # -base: no Qt/PyQt, the notebooks only draw inline
+  - plotly
+  - requests
+  - scipy                # notebook 7, convex hull
+  - pywavelets           # notebook 8, wavelet decomposition
+  - jupyterlab
+  - ipykernel            # jupyterlab does not pull this in; without it no kernel starts
+  - nbconvert-core       # lets the build run the notebooks as a test
+
+installer_type: exe
+license_file: ../LICENSE
+
+# Per-user install under AppData: no administrator rights, no PATH changes, and
+# nothing that could disturb another Python already on the machine.
+default_prefix: '%LOCALAPPDATA%\AirQualityTutorial'
+initialize_by_default: false
+register_python_default: false
+check_path_spaces: false
+keep_pkgs: false
+
+# Copied into the install folder; post_install.bat puts them where students expect.
+extra_files:
+  - course.zip           # built by the workflow from notebooks/ + data/
+  - start_tutorial.bat
+
+post_install: post_install.bat
