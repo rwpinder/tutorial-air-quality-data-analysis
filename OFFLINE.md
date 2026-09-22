@@ -34,6 +34,10 @@ nothing else to install and nothing to fetch later.
 
 To remove it later: *Settings ▸ Apps*. Your notebooks in Documents are left alone.
 
+**Click-by-click version:** [WINDOWS.md](WINDOWS.md) covers each step with the exact
+buttons, both security warnings, how to verify the download, and what to do if your
+workplace blocks unsigned installers.
+
 > **Why a zip, and why is it not smaller?** The zip exists because Edge and Chrome
 > refuse to download a `.exe` without a fight — you get a file called
 > *“Unconfirmed 123456.crdownload”* that will not run. It is the same size as the

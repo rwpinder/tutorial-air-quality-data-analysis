@@ -62,6 +62,17 @@ jobs:
           '{0}: {1:N0} MB' -f $exe.Name, ($exe.Length / 1MB)
           '{0}: {1:N0} MB' -f (Split-Path $zip -Leaf), ((Get-Item $zip).Length / 1MB)
 
+      - name: Write the checksums students can verify against
+        # WINDOWS.md tells a wary student (or their IT department) to compare
+        # Get-FileHash against this file, which is the only real answer to "is this
+        # unsigned thing the file you meant to publish?".
+        run: |
+          Get-ChildItem dist/* -Include *.exe, *.zip |
+            Get-FileHash -Algorithm SHA256 |
+            ForEach-Object { '{0}  {1}' -f $_.Hash.ToLower(), (Split-Path $_.Path -Leaf) } |
+            Set-Content dist/SHA256SUMS.txt -Encoding ascii
+          Get-Content dist/SHA256SUMS.txt
+
       - name: Install it silently, as a student would
         run: |
           $exe = (Get-ChildItem dist/*.exe)[0].FullName
@@ -113,6 +124,7 @@ jobs:
           path: |
             dist/*.exe
             dist/*.zip
+            dist/SHA256SUMS.txt
           retention-days: 14
 
       - name: Attach it to the release
@@ -120,13 +132,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $assets = (Get-ChildItem dist/* -Include *.exe, *.zip).FullName
+          $assets = (Get-ChildItem dist/* -Include *.exe, *.zip, SHA256SUMS.txt).FullName
           $notes = @(
             'Windows installer for the course: Python, JupyterLab and every package, plus the notebooks and data. Install it while you have a connection; everything after that works offline.',
             '',
             '**Download the .zip.** Edge and Chrome block a bare .exe download and leave a file called "Unconfirmed ....crdownload" behind. Unzip it, run the .exe inside, and click **More info > Run anyway** when Windows warns about the unsigned installer. The zip is the same size — the installer is already compressed.',
             '',
-            'Built, installed and test-run on a Windows machine by .github/workflows/build-windows-installer.yml: notebooks 1-5, 7 and 8 all execute inside the installed environment before this file is published.'
+            'Step-by-step instructions, including what to click when Windows calls the file unsafe: see WINDOWS.md in the repository.',
+            '',
+            'Built, installed and test-run on a Windows machine by .github/workflows/build-windows-installer.yml: notebooks 1-5, 7 and 8 all execute inside the installed environment before this file is published. SHA256SUMS.txt lists the checksums of both downloads.'
           ) -join "`n"
           gh release view windows-installer 2>$null
           if ($LASTEXITCODE -ne 0) {
